@@ -1,0 +1,393 @@
+Mushroom TODOs
+
+# Test explosion
+# make sure Jonah can run the game
+
+TODOs by person
+
+LILLY
+
+# make the miner closer to the player in size 
+# make miner portait(s)
+# create "bouncing" or "getting hit" animations for both the player and the miner
+# add in "getting hurt" animations, weapon-swinging animations, jumping animations, etc. for the player and miner.
+# design dialog boxes, map screen, inventory screen, etc.
+
+HOW TO ADD PLATFORM TYPES:
+
+# make a 32x32 image, or open a platform image that is simiar to the one you want to make
+# save it in the following places:
+    - Platformer/LevelEditor/images/blocks/platforms/default_platform (or sloping_platform if it is sloped)
+    - Platformer/LevelEditor/images/blocks/platforms/destructible_platform 
+    - Platformer/LevelEditor/images/blocks/platforms/passable_platform
+    - Platformer/images
+# the platform can now be added through the level editor.
+
+HOW TO CHANGE EXISTING IMAGES: (non-animated)
+
+# change the image in Platformer/images
+# optionally, find it in LevelEditor/images and change it there, too (though it should work either way)
+
+HOW TO CHANGE EXISTING IMAGES: (animated)
+
+# change the image in Platformer/animations
+# to add frames, expand the canvas width, adding multiples of the base image's width, and make altered versions of the base image.
+    - remember that for images that have "left" and "right" versions, if you change one, you should change the other
+
+HOW TO ADD BACKGROUNDS:
+
+# save a file in Platformer/backgrounds with the name axb_name.bmp, where a and b are the number of "rooms" wide and tall the background is and name is the name of the background.
+    - the image should be a*896 pixels wide by b*640 pixels tall.
+    - in general, it will probably be helpful to make varying sizes of backgrounds for varying rooms sizes, along with some "outdoor" backgrounds and some "cave" backgrounds 
+    
+--------------------------------------------------------------------------
+
+ROBERT (everything below here)
+
+    #KNOWN BUGS
+
+# the player "bounces back" a lot when traveling between dungeons.
+# it is possible for the computer running the game to freeze up given very large level backgrounds. No idea why.
+# The "add a level" button in the dungeon editor sometimes doesn't work after saving a level. not sure why.
+# the game will appear to freeze (but not really freeze) if the player somehow starts a new event too soon after finishing an old one.
+    - can avoid this by not placing chests or signs near places where the player ends a cutscene.
+# if the player walks back and forth while toggling memory mode of the lantern, it is possible to moonwalk. (may have fixed this but need to check.)
+# if the player holds down ctrl, then he will run in place. (this might be ok but I should at least ask people if it looks ok, and also make sure running is even necessary.)
+# when traveling from one level to another, the player sometimes "bounces" back into the first level.
+# the player can very occassionally fall out of the world and end up in a dark place. No idea how this happens.
+# Bats can fly outside the level and disappear. This can happen to frogs, too. (though they have to be knocked out of the level)
+# player can end up in a "None" level (and crash game) when leaving a level.
+    - this can occur with certain combinations of sprinting/jumping while leaving the level.
+    - so far it seems to only happen when leaving the level horizontally while jumping and sprinting through a gap of the same height as the player.
+    - it's possible that other bugs may occur if the player does this combination of actions, even when not leaving the level.
+# when falling down a large chasm, player can get to the other side of a wall by holding left.
+    - may be reproducible in more generalizable situations, like "leaving the level very quickly and diagonally"
+
+------------------------------------------------------------------------
+
+INSTRUCTIONS FOR ADDING NEW OBJECT TYPES:
+
+1. Make all necessary images and animations for the object. Save them as BMPs in LevelEditor/images, LevelEditor/animations, Platformer/images, and Platformer/animations.
+    - if necessary, create new folders when saving in LevelEditor/images since directories are parsed when the game figures out what the item is.
+2. Add constants for the new object to both instances of tiledata.py: the one in Platformer and the one in LevelEditor. Do this like so:
+    - add entity key and category key constants (Example: CHESTS and DEFAULT_CHEST)
+    - map the entity key to its category in ENTITY_CATEGORY_MAP
+    - if the object is animated, add its animations to the animation keys, too.
+3. Create a .py file for the object (like chest.py), make it inherit from any subclass of gameimage (almost always entity or one of its subclasses), and define its attributes.
+4. Add the entity to entityfactory.py.
+    - first, add it to that class's imports.
+    - add the entity to ENTITY_CONSTRUCTOR_MAP.
+    - if the entity can be intialized using only its name and class, add it to ENTITY_BUILD_MAP and create an init method.
+        * examples include sloping platforms and specific types of monsters
+5. Add the object to the getters in level.py and change the update() method so that it will blit the new object in the proper order. (objects in front are blitted further down.)
+
+-ONLY NECESSARY FOR NONSTANDARD OBJECTS-
+(also still only applies to objects added through level editor)
+
+6. If the object has a nonstandard init (like signs and cutscene triggers), add it to roomdata.py by creating an init method and adding that method to TILE_INIT_MAP.
+    - this is the case for objects that are created in the level editor and are not all interchangeable. For instance, if a monster's HP is set via the level editor, it 
+      will need its own init method.
+    - also add a deformatted method for the object. (ex: deformatted_chest)
+7. Create a data class for the object (ex: chestdata.py). 
+    - This will handle whatever data is necessary in addition to entity key, animation set, and coordinates.
+    - This needs to be done in both Platformer and LevelEditor.
+    - Be sure to code methods for create_copy() and formatted_data().
+8. Create a factory for the object (ex: chestfactory.py). 
+    - This will define how the object's additional data is added by its data class.
+9. Import this new factory in roomfactory.py and add it to NON_DEFAULT_ENTITY_MAP.
+10. Change entityselectpane.py to import the proper data class (along with its constant from tiledata) and add it to ENTITY_CONSTRUCTOR_MAP.
+11. Make it possible to add the necessary additional data for the object in the level editor by changing entitydatapane.py.
+    - the type of pane may very, but all panes should update and they should save if there is data that will not immediately be saved to the
+      associtaed TileData-inheriting object, current_selection.
+12. Change entitydatapane.py.
+    - import the new data type at the top.
+    - add the new data type to ENTITY_CONSTRUCTOR_MAP with a new string constant.
+
+-------------------------------------------------------------------------
+
+# NOTE: see dungeoneditorlauncher.py for dungeon editor-specific TODOs.
+
+# Make docstrings for each class
+    remaining classes to docstring:
+
+    (go back through non-LevelEditor classes because I haven't been diligent about docstringing)
+    (all LevelEditor classes)
+
+-----------------------------------------------------------------------
+
+LONG-TERM GOALS: (short summaries, does not include all TODOs)
+
+# combat
+    - more sophisticated collisions/knockback/invincibility frames
+    - more sophisticated damage/hp system (probably don't need too much in this area, though)
+    - expand use of subentities like more general melee weapons, projectiles, armor plating, weak spots, etc.
+# monsters
+    - more general mapping to AI
+    - look for patterns while developing more AI routines and try to minimize redundancy
+    - consider the ability to set varying monster data through level editor, based on what monster data turns out to be useful
+    - maybe have different sprites/animation sets for the same monster (this might not be worth the effort)
+# cutscenes/events
+    - consider cutscenes with dialog options, different possible endings, world data checks, etc.
+    - currently cutscene building is incomplete is far as building cutscenes with multiple actions. 
+        * see begin_cutscene in cutsenetrigger.py.
+# world and world data (implementing this might be a priority, but it'll be a big project)
+    - flesh out dungeon <-> world relationship
+    - saving/loading game (probably a concern for late in development)
+    - world data:
+        * will be something stored as an instance when the player saves, but also update as the player goes through the game.
+        * includes relatively temporary things like which enemies have been killed and which blocks have been broken, 
+          as well as permanent things like "morality" data, which cutscenes have been viewed, which shortcuts have been opened, etc.
+# exploration/hidden objects
+    - Make interesting mazes/hidden areas
+    - Keep in mind how the map will work
+# items/inventory
+    - Barely implemented and don't have many ideas.
+    - There should probably be an inventory screen.
+# screens/menus
+    - Make it more clear what each screen is supposed to be and plan out the pause screens/menus after other systems have been implemented.
+
+-------------------------------------------------------------------
+
+OVERARCHING MAIN GOAL: Build a demo showing off combat, exploration, dialogs, cutscenes, lighting mechanics, etc. once all immediate stuff is finished.
+    - the next demo should include better map screen, inventory screen, and lantern mechanics based on fading light/oil
+    - should also include a boss that feels good to fight
+    - also some world stuff and exploration stuff
+
+IMMEDIATE STUFF: most immediate (defined mainly as finishing incomplete systems or creating new ones that are interesting or that other TODOs depend on.)
+
+# fix the darkness bug that happens in cave_test
+    - this is because the wrong set of tiles is chosen for display in level.py
+# finish the inventory screen
+    - connect the item selector to the data pane.
+    - allow a button to "select" an item, allowing additional actions via the data pane.
+    - consider making it so that the inventory selection is persistent when the inventory screen is opened and closed
+# allow the player to change the controls from the defaults.
+    - do this from pause menu -> options
+    - this will change the structure of maingamecontrols.py quite a bit.
+    - it might help to generate a config file that includes control settings.
+# make the pause pane look decent. Need a frame and a cursor to choose from "resume", "options", and "quit".
+    - also consider different colors and font
+    - not sure what will go in options but one possibility is the option to change control scheme
+# expand on pause screen using advice from humans
+    - focus on figuring out whether additional screens would be good or bad
+    - tab might be a good button to open up another pane
+    - IDEAS for layouts:
+        1. everything is a different button
+            * tab to change lantern mode
+            * E or I for inventory (currently just lantern, sword, and maybe some flavor items)
+            * enter for pause menu (resume, options, quit)
+            * M for map (arrow keys will pan around)
+        2. everything reachable through one button (enter) 
+            * need to expand on pause panes and make a way to switch between them
+        3. same as 1, but lantern mode can be selected from the inventory screen
+# draw the items on the inventory screen larger (maybe 64 x 64 px)
+# IDEA: make some objects on the inventory screen (such as the lantern) animated
+# make it possible to change the lantern setting while paused.
+    - will need to expand on the pause screen and controls a good deal.
+# figure out an item system
+    - remember that the lantern and sword are both items but work very differently
+    - might just have checks to make them display on the inventory screen
+# show the lantern attached to the player's belt area and center the light rings on it pixel-wise.
+    - could do this by making the lantern a subentity of the player that appears when the player is in the dark
+    - in lit areas when the lantern is off, make it visibly clear that it is not lit, possibly by having the player put it away.
+# change the way the player looks in complete darkness.
+# might be able to draw the player towards some places in the darkness by blitting transparent white rings (or some other visual effect) over important spots
+# generalize subentities/entityeffects so that they can apply to monsters and NPCs
+    - to test this, make a giant frog with an armored mask that deflects frontal attacks 
+# implement some kind of projectiles
+    - this will help test the damage system, since currently subentities like weapons only damage the player or monsters
+      based on checks from their superentities. Projectiles, spikes, etc. should cause damage without being called by superentities.
+    - Have to decide how things like projectiles respond when their superentities are killed (i.e., what tells an arrow to keep flying if
+      the one who fired it dies)
+# figure out how monster spawining should be handled: i.e., when monsters defeated earlier should reappear.
+    - it's possible this will relate to World data.
+# add basic sounds (make them easy to disable for testing purposes)
+# make it easier to add simple NPCs with no actions or branching dialog trees, since most NPCs will work this way. Follow the same pattern as signs
+  and make a "default NPC" that can have many different sprites. Note that such NPCs will not have dialog portraits.
+
+--------------------------------------------------------------------------------
+
+SECOND MOST IMMEDIATE STUFF
+
+# fix the issue where the player runs in place when ctrl is held.
+    - this is low priority since this might end up being what I want
+# make the "hit spark" better (and possibly more well-adapted to the shape of the thing hit)
+    - consider other ways to show that something is being damaged-- flashing red?
+# IDEA: Make the dungeon editor (not the level editor) more intuitive by allowing level selection via the grid and not just the scroll list.
+# figure out a combat system 
+    - IDEA for hp/other stats: have a double dict of { MONSTER_NAME: { MONSTER DICT }, DEFAULT: { DEFAULT DICT } }
+        * implemented this for HP only
+    - may have to tweak some of the being/monster bounce system 
+        * consider implementing knockback that affects both the monster attacking and the target
+    - be extensible
+    - use sword as an example (have this but need to be more extensible, maybe)
+    - later, use gun/bow as example
+# consider using multiprocessing instead of multithreading to make adjacent dungeons load
+    - might want more tests first -- I'm not sure that I'll ever need to have the player start in a room adjacent to another dungeon.
+# fully implement a cutscene system and ways to trigger cutscenes (besides the existing contact-based triggers)
+# make it so some events (like the start of a boss fight) temporarily "lock" a room and unlock it when the boss is defeated (or based on some other event)
+# Make the miner good.
+    - NOTE: pick animation offset is currently (33, -13)
+    - The miner is supposed to be fast and aggressive, so experiment with different ways to achieve this.
+    - Attack pattern idea: charge while swinging, turn around in an exaggerrated way (if the player is behind), charge while swinging again
+        * figure out how attack pattern will work, and make it interruptible (probably)
+    - have the miner check for a clear path to the player before charging. If there is not a clear path, jump instead of charging.
+
+----------------------------------------------------------------------
+
+IMMEDIATE STUFF: Level Editor
+
+# figure out how to make a more extensible filepath in filemanagercontainer.py's saveDungeon method so that it isn't specific to my computer. 
+    - be sure to test the exe maker again if I change the directory structure
+    - IDEA: since there won't be many developers, just ask (via terminal?) who is there and use the answer to figure out their directory.
+# make error checking when the user tries to cd out of allowed areas in file containers (like the dungeon save files in the dungeon editor)
+# give the dungeon editor grid more distinct colors for selected/deselected rooms
+
+-------------------------------------------------------------------
+
+IMMEDIATE STUFF: lantern
+
+# IDEA: consider making the lantern flash ability automatically set the flicker count to the higher radius before activating.
+    - ask people if this is a good idea. I think it might be annoying to have to time the flash for blocks at the edge of the radius, but it might also make exploring more engaging.
+# consider giving the player a lantern mode that increases the radius, but drains oil faster.
+
+----------------------------------------------------------------------
+
+
+IMMEDIATE STUFF: world
+
+# implement world stuff
+    - currently, travel between dungeons is possible, but the world is not involved in this. Need to:
+        1. give the world access to all dungeons (only as it becomes necessary to accomplish other things)
+        2. allow dungeons to communicate with world as necessary
+        3. start figuring out how to handle persistent changes like cutscenes vs respawning things like monsters.
+            * this will extend into game saving, so plan a way to do that
+        4. figure out a way to store persistent things like NPC states, morality data (though that might be best stored in the player), destroyed blocks, revealed shortcuts, etc.
+    - will I need a worlddata class?
+    - what about world factory?
+
+-------------------------------------------------------------------
+
+IMMEDIATE STUFF: screens and menus
+
+# make the map screen more sophisticated. (get feedback)
+    - consider how it should be centered (and how to scroll if there is not room for the entire explored area)
+    - consider making parts of the map fade with time 
+
+----------------------------------------------------------------------
+
+IMMEDIATE STUFF: movement
+
+# come up with more movement examples to expand dict-based movement process
+    - consider making ice blocks (or some other example besides ladders) to test whether this system is really extensible.
+# implement one-way platforms, spikes, etc
+# fix movement/rect related stuff, and put all relevant methods in gameImage, to be called by subclasses.
+    - This is partially, maybe completely done, but make sure before removing this TODO
+
+-------------------------------------------------------------
+
+IMMEDIATE STUFF: dialog
+
+# Make complex NPCS get their dialog data through a more general process
+    - can sort of use cutscenes as a frame of reference
+    - will require a lot of planning
+        *this is because different actions in the game will affect NPC behavior/dialog later on.
+        *need to start really implementing (or planning in detail) the game's main story 
+            in order to flesh out the NPC system I'll need
+    - IDEA: simple NPCs (which won't appear in multiple places) have their dialogs set similarly to signs,
+            while main characters have "triggers" linked to text files and other saved data
+            which make them appear.
+# make portraits prettier (look at cave story, consult people, consider resizing, etc.)
+# fix the SIGN arg that I use to determine the image for the dialog pane, or just make it so all dialog panes are the same (which I would prefer not to do)
+    - this will change the NPC class, the dialog class (I think), and probaly the dialogchoice one (and maybe some others)
+# figure out how to give the existing dialog boxes borders, maybe even make them loaded images instead.
+    - could make a nice little "sign" image with a wooden grain
+    - figure out what panes should be like for NPCs
+    - make it more visually clear that dialogs are waiting for a button input. (maybe a blinking icon?)
+# make it more visually clear when the player can press X to interact with something (this includes signs, NPCs, doors, and whatever else we make by this point)
+# consider making Dialogs inherit from GameActions (or events?) instead of Effects, and make the level add/remove effects containing images based on the dialog.
+    - not 100% sure about this as it might uneccessarily change existing structrue
+    - note that this will affect DialogChoices, which inherit from Dialogs
+
+-------------------------------------------------------------
+
+IMMEDIATE STUFF: cutscenes
+
+# Make sure cutscene structure will allow allow different events to happen at the same time in a cutscene 
+    - i.e., entity A starts walking, entity B does something while A is still walking
+    - this might work if actions are not ended when new actions start, meaning ending an action is an action in itself.
+    - IDEA: different actions that make up a cutscene are linked to "next" actions, which execute when they are over.
+# Finish and clean up the frameworks that will handle text, dialogs, events, cutscenes, etc.
+    - Remember that some things should be skippable while others should not.
+    - Test a number of different cutscene types for testing and implement them using the same general system.
+
+------------------------------------------------------------------------
+
+    #LESS IMMEDIATE STUFF
+
+# make boss fights/cutscenes for the priestess and the immortal.
+    - see if bosses can be beaten without taking much damage (possibly without taking any). Preferably, find someone to test this once the demo is done.
+# implement collectable items of some kind and an inventory screen
+    - will require a lot of planning as far as actual game design
+# consider making it so the player does not jump repeatedly if the jump button is held down.
+# Make a windowed launcher that makes it possible to select which dungeon to load from the saved list.
+# consider removing level_ID, but first try to think of possible uses for it.
+    - it is likely to come in handy when "world data" is implemented.
+
+    # USER SUGGESTIONS
+
+# make the character less bright compared to the surrounding environment (/vg/)
+
+---------------------------------------------------------------
+
+    # REDUCING LAG
+
+# instead of having the level constantly check for up-interacatbles, simply generate a list stored in levelobjects when the level is created
+    - do this for all the indivdual object types (monsters, platforms, etc) as well.
+# IDEA: make sure the level only bothers to render the images of onscreen enemies
+# IDEA TO REDUCE LAG: instead of having every still object load its own image, have the level keep a dict (filename:Surface) of all still images on the level, and only load new ones
+    if an object's filename is not found in the dict.
+    - start by only doing this with tiles. If it helps and/or isn't too time-consming, do the same with platforms.
+    - one major advantage is that I can call convert() on each of these images, which will make blitting much more efficient.
+    - In case this somehow makes lag worse, be sure to keep the old image system commented out and not deleted
+    - This will involve changing a *lot* of classes, but it should probably reduce lag significantly by reducing the amount of information each still object has to store.
+    - Can probably do this for tiles as well as blocks.
+# Store light ring images in Player if levels start taking too long to load.
+
+    #SPRITE STUFF
+
+# Create some easier way to make backgrounds that suit levels. One possibility is to generate white background versions of levels that only show entities.
+
+    # ENEMY/AI STUFF
+
+# make it so enemies can't "see" the player behind passable blocks.
+# TODO: implement more enemies. Try to give them very different behavior to force myself to expand the AI system.
+# IDEA: could give some monsters strong knockback by increasing the bounce they deliver.
+# NOTE: enemies remain in the exact same state they were left in when the player leaves a level. should decide if this is good or bad.
+
+    # PLATFORM STUFF
+
+# consider letting destructible platforms have multiple destroy criteria. This would be accomplished by changing the entitydatapane and the formatting style of destructible platforms.
+# consider platforms that  the player can jump up through and/or fall through  by tapping down
+# consider platforms that hurt the player when touched
+# consider moving platforms (might not fit into the existing tile -> block system, and therefore might not inherit from Platform)
+
+    # MISC STUFF
+
+# give doors opening animations (and possibly closing ones)
+# give exit blocks super terrifying sprites. (they can't be seen normally so it will be a fun surprise if there's a glitch or something)
+
+--------------------------------------------------------------------
+
+    # LONG-TERM STUFF
+
+# to make running out of lantern oil more threatening, make some unkillable monster (explained in the story) who comes to kill you if you're in complete darkness.
+    - maybe you kill this monster during one of the possible endings?
+# figure out the long-term artstyle and change sprites to match
+# since being in the dark with no light could make it extremely tedious to get out, make a "suicide" option and ensure that death
+    has siginficant pentalties and sends the player back to a save point where they are guaranteed to have access to light
+        - want to structure the game partly around this system
+# make it possible for the player to save the game
+# think up lots of cool easter eggs 
+# when actually implementing the game, make sure that at some point the player is forced to go through dark areas with no lantern/empty lantern
+    so that they know what it's like.   
