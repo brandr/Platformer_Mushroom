@@ -69,9 +69,9 @@ NOTE: These steps are currently Windows-only. I will add instructions for other 
 
 	b. Navigate to this folder in git bash, the same way you did in step 7.
 
-	c. Enter the command "git clone https://github.com/brandr/Platformer.git" 
+	c. Enter the command "git clone https://github.com/brandr/Platformer_Mushroom.git" 
 
-	d. Navigate inside the cloned repo (I think by entering "cd Platformer").
+	d. Navigate inside the cloned repo (I think by entering "cd Platformer_Mushroom").
 
 	e. play the game by entering "python gamelaucher.py". If everything went well it should run fine.
 

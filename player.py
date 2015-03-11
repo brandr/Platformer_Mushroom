@@ -532,7 +532,6 @@ class Player(Being):
         """
         if self.dead: return
         self.death_count += 1
-        print self.death_count
         self.dead = True
         self.add_death_explosion()
         self.current_level.player_dead_counter = 150
