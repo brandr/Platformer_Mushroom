@@ -104,7 +104,7 @@ class FileManagerContainer(Box):
 		json.dump(save_data, dungeon_file)
 		self.file_select_window.set_directory('./dungeon_map_files')
 		#TODO: update the save pane here.
-		dev_filepath = "/home/robert/Documents/python_stuff/Platformer_Mushroom_Hero/dungeon_map_files"
+		dev_filepath = "C:\\My_Awesome_Game\\Mushroom_Hero\\LevelEditor\\dungeon_map_files"
 		if(path.exists(dev_filepath)):
 			dev_filename = dev_filepath + "/" + current_filename
 			print "Saving dungeon for the developers..."

@@ -1,6 +1,5 @@
 Mushroom TODOs
 
-# Reduce lag. One idea: only render backgrounds the size of one room. Blit only the room(s) that are visible
 # make sure Jonah can run the game
 
 TODOs by person
